@@ -1,0 +1,66 @@
+package com.campus.notification.controller;
+
+import com.campus.notification.dto.NotificationRequest;
+import com.campus.notification.model.Notification;
+import com.campus.notification.service.NotificationService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/v1/notifications")
+@RequiredArgsConstructor
+public class NotificationController {
+
+    private final NotificationService notificationService;
+
+    @PostMapping
+    public ResponseEntity<Notification> createNotification(
+            @RequestBody NotificationRequest request) {
+
+        Notification notification = Notification.builder()
+                .userId(request.getUserId())
+                .title(request.getTitle())
+                .message(request.getMessage())
+                .type(request.getType())
+                .build();
+
+        return ResponseEntity.ok(
+                notificationService.createNotification(notification));
+    }
+
+    @GetMapping("/users/{userId}")
+    public ResponseEntity<List<Notification>> getUserNotifications(
+            @PathVariable Long userId) {
+
+        return ResponseEntity.ok(
+                notificationService.getUserNotifications(userId));
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Notification> getNotificationById(
+            @PathVariable Long id) {
+
+        return ResponseEntity.ok(
+                notificationService.getNotificationById(id));
+    }
+
+    @PatchMapping("/{id}/read")
+    public ResponseEntity<Notification> markAsRead(
+            @PathVariable Long id) {
+
+        return ResponseEntity.ok(
+                notificationService.markAsRead(id));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteNotification(
+            @PathVariable Long id) {
+
+        notificationService.deleteNotification(id);
+
+        return ResponseEntity.noContent().build();
+    }
+}

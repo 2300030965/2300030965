@@ -1,0 +1,56 @@
+package com.campus.notification.service.impl;
+
+import com.campus.notification.model.Notification;
+import com.campus.notification.repository.NotificationRepository;
+import com.campus.notification.service.NotificationService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+@Service
+@RequiredArgsConstructor
+public class NotificationServiceImpl implements NotificationService {
+
+    private final NotificationRepository notificationRepository;
+
+    @Override
+    public Notification createNotification(Notification notification) {
+
+        notification.setCreatedAt(LocalDateTime.now());
+        notification.setIsRead(false);
+
+        return notificationRepository.save(notification);
+    }
+
+    @Override
+    public List<Notification> getUserNotifications(Long userId) {
+        return notificationRepository.findByUserIdOrderByCreatedAtDesc(userId);
+    }
+
+    @Override
+    public Notification getNotificationById(Long id) {
+        return notificationRepository.findById(id)
+                .orElseThrow(() ->
+                        new RuntimeException("Notification not found"));
+    }
+
+    @Override
+    public Notification markAsRead(Long id) {
+
+        Notification notification = getNotificationById(id);
+
+        notification.setIsRead(true);
+
+        return notificationRepository.save(notification);
+    }
+
+    @Override
+    public void deleteNotification(Long id) {
+
+        Notification notification = getNotificationById(id);
+
+        notificationRepository.delete(notification);
+    }
+}
